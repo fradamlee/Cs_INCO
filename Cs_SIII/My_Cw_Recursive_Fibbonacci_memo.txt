@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <stdlib.h>
+using namespace std;
+#include <string>
+#include <iostream>
+#include <time.h>
+
+class FibbonacciSerie
+{
+private:
+    long memo[5000][2];
+
+public:
+    FibbonacciSerie();
+    long fibbonacci(long);
+};
+
+FibbonacciSerie::FibbonacciSerie()
+{
+    for (int i = 0; i < 5000; i++)
+    {
+        memo[i][0] = 0;
+    }
+}
+
+long FibbonacciSerie::fibbonacci(long ele)
+{
+    if (ele < 2)
+    {
+        return 1;
+    }
+    long a, b;
+    if (memo[ele - 2][0] == 1)
+    {
+        a = memo[ele - 2][1];
+    }
+    else
+    {
+        a = fibbonacci(ele - 2);
+        memo[ele - 2][0] = 1;
+        memo[ele - 2][1] = a;
+    }
+    if (memo[ele - 1][0] == 1)
+    {
+        b = memo[ele - 1][1];
+    }
+    else
+    {
+        b = fibbonacci(ele - 1);
+        memo[ele - 1][0] = 1;
+        memo[ele - 1][1] = b;
+    }
+    return a + b;
+}
+
+////////////
+int main()
+{
+    FibbonacciSerie fib1;
+    long choice = 1;
+    while (choice != 0)
+    {
+        std::cout << "\nIngresa tu fibbonacci " << endl;
+        cin >> choice;
+        cout << fib1.fibbonacci(choice) << endl;
+    }
+    return 0;
+}
