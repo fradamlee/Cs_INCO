@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+using namespace std;
+#include <string>
+#include <iostream>
+#include <time.h>
+
+///////////////////
+
+class CCadena
+{
+private:
+    char szBuffer[128];
+
+public:
+    CCadena();
+    void Leer();
+    void Imprimir();
+    //
+    int Tamanio();
+    int Cuenta(char);
+    void Reves();
+};
+
+CCadena::CCadena() {}
+
+void CCadena::Leer()
+{
+    string s1;
+    std::cout << "\nIngresa un texto " << endl;
+    std::getline(cin, s1);
+    for (int i = 0; i < s1.length(); i++)
+    {
+        szBuffer[i] = s1[i];
+    }
+    szBuffer[s1.length()] = 0;
+}
+
+void CCadena::Imprimir()
+{
+    for (int i = 0; i < 128 && szBuffer[i] != 0; i++)
+    {
+        std::cout << szBuffer[i];
+    }
+}
+
+// Ex 1. Opción 2
+int CCadena::Tamanio()
+{
+    int size = 0;
+    for (int i = 0; szBuffer[i] != 0; i++)
+    {
+        size++;
+    }
+    return size;
+}
+
+// Ex 2. Opción 2
+int CCadena::Cuenta(char cContar)
+{
+    int quant = 0;
+    for (int i = 0; szBuffer[i] != 0; i++)
+    {
+        if (szBuffer[i] == cContar)
+        {
+            quant++;
+        }
+    }
+    return quant;
+}
+
+// Ex 3. Opción 2
+void CCadena::Reves()
+{
+    int lastEle = Tamanio() - 1;
+    char temp;
+    char charTempLst[50];
+    for (int iter = 0; iter < lastEle; iter++)
+    {
+        temp = szBuffer[iter];
+        szBuffer[iter] = szBuffer[lastEle];
+        szBuffer[lastEle] = temp;
+        lastEle--;
+    }
+}
+
+/////////////
+
+int main()
+{
+    CCadena cadena1;
+    cadena1.Leer();
+    std::cout << cadena1.Tamanio() << endl;
+    std::cout << cadena1.Cuenta('o') << endl;
+    cadena1.Reves();
+    cadena1.Imprimir();
+    std::cout << "\n";
+    return 0;
+}

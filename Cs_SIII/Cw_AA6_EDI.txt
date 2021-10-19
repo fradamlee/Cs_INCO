@@ -1,0 +1,595 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+using namespace std;
+#include <string>
+#include <iostream>
+#include <time.h>
+
+#include "listexception.h"
+
+// //
+ #include "listexception.h"
+#include "playlist.hpp"
+#include "userInterface.hpp"
+
+///////////////////
+class Song
+{
+private:
+    string sIterms[5];
+
+public:
+    Song();
+    void initSong(char const *, char const *, char const *, char const *, char const *);
+    int compareString(const string &, const int &);
+    string getStringSong();
+    string getItem(const int &);
+};
+
+Song::Song() {}
+void Song::initSong(char const *_ranking, char const *_song, char const *_author, char const *_singer, char const *_file)
+{
+    sIterms[0] = _ranking;
+    sIterms[1] = _song;
+    sIterms[2] = _author;
+    sIterms[3] = _singer;
+    sIterms[4] = _file;
+}
+
+int Song::compareString(const string &searchedWord, const int &column)
+{
+    // Si considera que la palabra buscada esta antes devolverá -1
+    // Si considera que la palabra buscada esta después devolverá 1
+    // Si coicide la búsqueda devolverá 0
+    string selectedString = sIterms[column];
+    for (int i = 0; searchedWord.length() > i && selectedString.length() > i; i++)
+    {
+        if (int(searchedWord[i]) > int(selectedString[i]))
+        {
+            return -1;
+        }
+        else if (int(searchedWord[i]) < int(selectedString[i]))
+        {
+            return 1;
+        }
+    }
+    if (searchedWord.length() == selectedString.length())
+    {
+        return 0;
+    }
+    else if (searchedWord.length() > selectedString.length())
+    {
+        return -1;
+    }
+    else if (searchedWord.length() < selectedString.length())
+    {
+        return 1;
+    }
+}
+
+string Song::getStringSong()
+{
+    return (sIterms[0] + "\t|\t" + sIterms[1] + "\t|\t" + sIterms[2] + "\t|\t" + sIterms[3] + "\t|\t" + sIterms[4]);
+}
+
+string Song::getItem(const int &pos)
+{
+    return sIterms[pos];
+}
+
+///////////////////
+
+class Playlist
+{
+private:
+    Song playList[3000];
+    int counter;
+    void copyAll(const Playlist &);
+
+public:
+    void concatPlaylist(const Playlist &);
+    Playlist();
+    Playlist(const Playlist &);
+    bool empty();
+    bool full();
+    void insert(const int &, const Song &);
+    //void insert(const int &, const int &);
+    void delate(const int &);
+    int first();
+    int last();
+    int previous(const int &);
+    int next(const int &);
+    /// in: (searchedWord, int position Song element)  out: pos
+    // int find(const string &, const int &);
+    ////int find(const string &);
+    /// in: pos  out: ele
+    Song getElement(const int &);
+    //int getElement(const int &);
+    void sort();
+    void print();
+    void reset();
+    int length();
+    int linearSearch(const int &, Song &);
+    int binarySearch(const int &, Song &);
+    bool isExactSong(Song &, int &);
+    void bubbleSort(const int &);
+    void insertSort(const int &);
+    void selectSort(const int &);
+    void shellSort(const int &);
+    void testSort(const int &);
+    Playlist &operator=(const Playlist &);
+};
+
+// Private
+
+void Playlist::copyAll(const Playlist &lst)
+{
+    int i = 0;
+    while (i <= lst.counter)
+    {
+        playList[i] = lst.playList[i];
+        i++;
+    }
+    counter = lst.counter;
+}
+
+// Public
+
+void Playlist::concatPlaylist(const Playlist &lst)
+{
+    int localIter = counter;
+    int newIter = 0;
+    while (localIter <= lst.counter + counter)
+    {
+        playList[localIter + 1] = lst.playList[newIter];
+        localIter++;
+        newIter++;
+    }
+    counter += lst.counter + 1;
+}
+
+Playlist::Playlist() : counter(-1) {}
+
+Playlist::Playlist(const Playlist &lst)
+{
+    copyAll(lst);
+}
+
+bool Playlist::empty()
+{
+    return counter == -1;
+}
+
+bool Playlist::full()
+{
+    return counter == 2999;
+}
+
+void Playlist::insert(const int &pos, const Song &ele)
+{
+    if (full())
+    {
+        throw ListException("Desbordamiento de datos, insertData");
+    }
+    if (pos < -1 || pos > counter)
+    {
+        throw ListException("Posicion invalida, insertData");
+    }
+    for (int i = counter; i > pos; i--)
+    {
+        playList[i + 1] = playList[i];
+    }
+    playList[pos + 1] = ele;
+    counter++;
+}
+
+void Playlist::delate(const int &pos)
+{
+    if (pos < -1 || pos > counter)
+    {
+        throw ListException("Posicion invalida, insertData");
+    }
+    for (int i = pos; i < counter; i++)
+    {
+        playList[i] = playList[i + 1];
+    }
+    counter--;
+}
+
+int Playlist::first()
+{
+    if (empty())
+    {
+        return -1;
+    }
+    return 0;
+}
+
+int Playlist::last()
+{
+    return counter;
+}
+
+int Playlist::previous(const int &pos)
+{
+    if (pos < 0 || pos > counter)
+    {
+        return -1;
+    }
+    return pos - 1;
+}
+
+int Playlist::next(const int &pos)
+{
+    if (pos < -1 || pos >= counter)
+    {
+        return -1;
+    }
+    return pos + 1;
+}
+
+Song Playlist::getElement(const int &pos)
+{
+    if (pos < -1 || pos > counter)
+    {
+        throw ListException("Posicion invalida, insertData");
+    }
+    return playList[pos];
+}
+
+void Playlist::print()
+{
+    for (int i = 0; i <= counter; i++)
+    {
+        std::cout << playList[i].getStringSong() << endl;
+    }
+    std::cout << endl;
+}
+
+void Playlist::reset()
+{
+    counter = -1;
+}
+
+int Playlist::linearSearch(const int &posSongItem, Song &searchedSong)
+{
+    for (int iter1 = 0; iter1 <= counter; iter1++)
+    {
+
+        if (searchedSong.compareString(playList[iter1].getItem(posSongItem), posSongItem) == 0)
+        {
+            if (isExactSong(searchedSong, iter1))
+            {
+                return iter1;
+            }
+        }
+    }
+    return -1;
+}
+
+int Playlist::binarySearch(const int &posSongItem, Song &searchedSong)
+{
+    int first = 0, last = counter, middleVal, criteriaVal;
+    for (int sortChecker = 0; first <= last && sortChecker <= counter; sortChecker++)
+    {
+        middleVal = (first + last) / 2;
+        criteriaVal = searchedSong.compareString(playList[middleVal].getItem(posSongItem), posSongItem);
+
+        if (criteriaVal == -1)
+        {
+            last = middleVal - 1;
+        }
+        else if (criteriaVal == 1)
+        {
+            first = middleVal + 1;
+        }
+        else
+        {
+            if (isExactSong(searchedSong, middleVal))
+            {
+                return middleVal;
+            }
+        }
+    }
+    return -1;
+}
+
+bool Playlist::isExactSong(Song &searchedSong, int &valueToCheck)
+{
+    // return middleVal;
+    bool exactVal = true;
+    for (int iter2 = 0; iter2 <= 3 && exactVal; iter2++)
+    {
+        if (searchedSong.compareString(playList[valueToCheck].getItem(iter2), iter2) != 0)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void Playlist::bubbleSort(const int &posItemSong)
+{
+    int first, last = counter;
+    while (last > 0)
+    {
+        first = 0;
+        while (first < last)
+        {
+            if (playList[first].compareString(playList[first + 1].getItem(posItemSong), posItemSong) == 1)
+            {
+                Song tempSong = playList[first];
+                playList[first] = playList[first + 1];
+                playList[first + 1] = tempSong;
+            }
+            first++;
+        }
+        last--;
+    }
+}
+
+void Playlist::insertSort(const int &posItemSong)
+{
+    for (int iter1 = 1; iter1 <= counter; iter1++)
+    {
+        Song tempSong = playList[iter1];
+        int iter2 = iter1;
+        while (iter2 > 0 && tempSong.compareString(playList[iter2 - 1].getItem(posItemSong), posItemSong) == -1)
+        {
+            playList[iter2] = playList[iter2 - 1];
+            iter2--;
+        }
+        if (iter1 != iter2)
+        {
+            playList[iter2] = tempSong;
+        }
+    }
+}
+
+void Playlist::selectSort(const int &posItemSong)
+{
+    int minVal;
+    for (int iter1 = 0; iter1 < counter; iter1++)
+    {
+        minVal = iter1;
+        int iter2 = iter1 + 1;
+        while (iter2 <= counter)
+        {
+            if (playList[minVal].compareString(playList[iter2].getItem(posItemSong), posItemSong) == 1)
+            {
+                minVal = iter2;
+            }
+            iter2++;
+        }
+        if (iter1 != iter2)
+        {
+            Song tempSong = playList[iter1];
+            playList[iter1] = playList[minVal];
+            playList[minVal] = tempSong;
+        }
+    }
+}
+
+void Playlist::shellSort(const int &posItemSong)
+{
+    float factor = 0.5;
+    for (int iter1Dif = (counter + 1) / 2; iter1Dif > 0; iter1Dif *= factor)
+    {
+        for (int iter2 = 0; (iter2 + iter1Dif) <= (counter + 1); iter2++)
+        {
+            for (int iter3 = iter2; playList[iter3].compareString(playList[iter3 - iter1Dif].getItem(posItemSong), posItemSong) == -1; iter3 -= iter1Dif)
+            {
+                Song tempSong = playList[iter3 - iter1Dif];
+                playList[iter3 - iter1Dif] = playList[iter3];
+                playList[iter3] = tempSong;
+            }
+        }
+    }
+}
+
+// //////////-------
+// void Playlist::testSort(const int &posItemSong)
+// {
+//     for (int i = 0; i <= counter; i++)
+//     {
+//         std::cout << playList[i].getItem(posItemSong) << " n ";
+//     }
+//     std::cout << "\n";
+// }
+// //////////-------
+
+Playlist &Playlist::operator=(const Playlist &lst)
+{
+    copyAll(lst);
+    return *this;
+}
+
+///////////////////
+class UserInterface
+{
+private:
+    int choice;
+    string inputText;
+    Playlist playlist2;
+
+public:
+    UserInterface(const Playlist &);
+    void showMenu();
+    void showSongs();
+    void addSongs();
+    // void searchWord();
+    Playlist stringToPlaylist(const string &);
+    void showSeachMenu();
+    void showSeachResult(const int &);
+    void showSortMenu();
+};
+
+UserInterface::UserInterface(const Playlist &_playlist2)
+{
+    playlist2 = _playlist2;
+}
+
+void UserInterface::showMenu()
+{
+    std::cout << "\n[1] Insertar canciones \n[2] Monstrar canciones\n[3] Realizar busqueda \n[4] Ordenar \n[0] Salir\n";
+    std::cin >> choice;
+    if (choice == 1)
+    {
+        addSongs();
+    }
+    else if (choice == 2)
+    {
+        showSongs();
+    }
+    else if (choice == 3)
+    {
+        showSeachMenu();
+    }
+    else if (choice == 4)
+    {
+        showSortMenu();
+    }
+    if (choice != 0)
+    {
+        UserInterface userInterface1(playlist2);
+        userInterface1.showMenu();
+    }
+};
+
+void UserInterface::showSongs()
+{
+    playlist2.print();
+}
+
+void UserInterface::addSongs()
+{
+    std::cout << "\nIngresa un texto en formato CSV: \n ranking1,cancion1,autor1,interprete1,archivo1/ranking2, ... /" << endl;
+    cin.ignore();
+    std::getline(cin, inputText);
+    Playlist newPlaylist;
+    newPlaylist = stringToPlaylist(inputText);
+    playlist2.concatPlaylist(newPlaylist);
+}
+
+Playlist UserInterface::stringToPlaylist(const string &inputText)
+{
+    Playlist playlist1;
+    int counter1 = -1, counter2 = 0, counter3 = 0;
+    char sItems[5][30];
+    for (int iter1 = 0; inputText[iter1] != 0; iter1++)
+    {
+        if (inputText[iter1] == '/')
+        {
+            sItems[counter2][counter3] = 0;
+            counter3 = 0;
+            counter2 = 0;
+            Song song1;
+            song1.initSong(sItems[0], sItems[1], sItems[2], sItems[3], sItems[4]);
+            playlist1.insert(counter1, song1);
+            counter1++;
+        }
+        else if (inputText[iter1] == ',')
+        {
+            sItems[counter2][counter3] = 0;
+            counter3 = 0;
+            counter2++;
+        }
+        else
+        {
+            sItems[counter2][counter3] = inputText[iter1];
+            counter3++;
+        }
+    }
+    return playlist1;
+}
+
+void UserInterface::showSeachMenu()
+{
+    int searchChoice, foundPos;
+    string sCsvSong;
+    std::cout << "\n[1] Buscar por cancion, busqueda lineal \n[2] Buscar por cancion, busqueda binaria \n[3] Buscar por interprete, busqueda lineal \n[4] Buscar por interprete, busqueda binaria \n"
+              << endl;
+    std::cin >> searchChoice;
+    std::cout << "\nIngresa un tu objeto cancion en formato CSV: \n ranking,cancion,autor,interprete,archivo/ \n"
+              << endl;
+    cin.ignore();
+    std::getline(cin, sCsvSong);
+
+    Playlist tempPlaylist = stringToPlaylist(sCsvSong);
+    // tempPlaylist.print();
+    Song song1 = tempPlaylist.getElement(0);
+    // std::cout << song1.getStringSong() << endl;
+    if (searchChoice == 1)
+    {
+        foundPos = playlist2.linearSearch(1, song1);
+    }
+    else if (searchChoice == 2)
+    {
+        foundPos = playlist2.binarySearch(1, song1);
+    }
+    else if (searchChoice == 3)
+    {
+        foundPos = playlist2.linearSearch(3, song1);
+    }
+    else if (searchChoice == 4)
+    {
+        foundPos = playlist2.binarySearch(3, song1);
+    }
+
+    showSeachResult(foundPos);
+}
+
+void UserInterface::showSeachResult(const int &pos)
+{
+    std::cout << "Resultados de busqueda: " << endl;
+    if (pos != -1 && pos <= playlist2.last())
+    {
+        Song foundSong = playlist2.getElement(pos);
+        std::cout << foundSong.getStringSong();
+    }
+    else
+    {
+        std::cout << "No encontrado " << endl;
+    }
+}
+
+void UserInterface::showSortMenu()
+{
+    int posItemChoice, algorithmChoice;
+    std::cout << "\n[1] Ordenar por nombre de cancion \n[3] Ordenar por nombre de interprete \n"
+              << endl;
+    std::cin >> posItemChoice;
+    std::cout << "\n[1] Con algoritmo BubbleSort \n[2] Con algoritmo InsertSort \n[3] Con algoritmo SelectSort \n[4] Con algoritmo ShellSort \n"
+              << endl;
+    std::cin >> algorithmChoice;
+
+    if (algorithmChoice == 1)
+    {
+        playlist2.bubbleSort(posItemChoice);
+    }
+    else if (algorithmChoice == 2)
+    {
+        playlist2.insertSort(posItemChoice);
+    }
+    else if (algorithmChoice == 3)
+    {
+        playlist2.selectSort(posItemChoice);
+    }
+    else if (algorithmChoice == 4)
+    {
+        playlist2.shellSort(posItemChoice);
+    }
+}
+/////////////
+
+int main()
+{
+    //
+    Playlist playlist1;
+    UserInterface userInterface1(playlist1);
+    userInterface1.showMenu();
+
+    return 0;
+}
+

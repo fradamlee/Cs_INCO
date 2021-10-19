@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <iostream>
+
+void Parte1()
+{
+    int iX;
+    int iY;
+
+    iX = 5;
+
+    iY = 10;
+
+    int *pA;
+
+    pA = &iX;
+
+    std::cout << iX << "\n"; // 6
+
+    std::cout << *pA << "\n"; // 7
+
+    std::cout << &iX << "\n"; // 8
+
+    std::cout << pA << "\n"; // 9
+
+    pA = &iY;
+
+    std::cout << iY << "\n"; // 11
+
+    std::cout << *pA << "\n"; // 12
+
+    std::cout << &iY << "\n"; // 13
+
+    std::cout << pA << "\n\n"; // 14
+}
+
+int Potencia(int iBase, int iExp)
+{
+    int iRes = 1;
+    for (int i = 0; i < iExp; i++)
+    {
+        iRes *= iBase;
+    }
+    return iRes;
+}
+
+void Potencia2(int *pBase, int iExp)
+{
+    int iRes = 1;
+    for (int i = 0; i < iExp; i++)
+    {
+        iRes *= *pBase;
+    }
+    *pBase = iRes;
+}
+
+int main()
+{
+    // 1era Parte
+    Parte1();
+
+    // 2da parte
+    int potencia = Potencia(4, 2);
+    std::cout << potencia << "\n";
+
+    int iBase = 2;
+    int *pBase;
+    pBase = &iBase;
+
+    Potencia2(pBase, 3);
+
+    std::cout << iBase << "\n";
+
+    return 0;
+}
