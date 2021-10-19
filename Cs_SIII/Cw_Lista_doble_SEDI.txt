@@ -1,0 +1,173 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+using namespace std;
+#include <string>
+#include <iostream>
+#include <time.h>
+
+#include "listexception.h"
+
+class CNodo
+{
+private:
+    float fContenido;
+    CNodo *anterior;
+    CNodo *siguiente;
+    friend class CLista;
+
+public:
+    CNodo();
+    ~CNodo();
+    void InsertarAdelante(float); // InsertarAdelante crea un nuevo nodo, le asigna fData como fContenido al nuevo nodo, por último inserta el nuevo nodo delante del nodo actual.
+    float EliminarSiguiente();    // EliminarSiguiente Borra el nodo apuntado por pSiguiente rehace los enlaces para que la lista siga siendo consistente.
+};
+
+CNodo::CNodo()
+{
+    this->anterior = nullptr;
+    this->siguiente = nullptr;
+}
+CNodo::~CNodo() {}
+
+void CNodo::InsertarAdelante(float fData)
+{
+    CNodo *pNewNode;
+    pNewNode = new CNodo;
+    pNewNode->fContenido = fData;
+    pNewNode->anterior = this;
+    //pNewNode->siguiente = nullptr;
+    pNewNode->siguiente = this->siguiente;
+    this->siguiente = pNewNode;
+    //
+    pNewNode->siguiente->anterior = pNewNode;
+}
+
+float CNodo::EliminarSiguiente()
+{
+    float fSigContenido = this->siguiente->fContenido;
+    // sigContenido = this->fContenido;
+    delete this->siguiente;
+    this->siguiente = this->siguiente->siguiente;
+    this->siguiente->anterior = this;
+    return fSigContenido;
+}
+
+//
+class CLista
+{
+private:
+    CNodo Inicio;
+    CNodo Final;
+
+public:
+    CLista();
+    ~CLista();
+    void InsertarInicio(float);
+    void InsertarFinal(float);
+    float EliminarInicio(); //elimina el primer nodo de la lista y devuelve el valor que contenía
+    float EliminarFinal();  //elimina el último nodo de la lista y devuelve el valor que contenía
+    bool IsEmpty();         //devuelve true solo cuando la lista esta vacía.
+    int Size();             //devuelve el numero de elementos en la lista.
+    void Vaciar();          //Elimina todos los elementos de la lista, no regresa ninguno por lo que estos elementos se pierden.
+    void Imprime();         //Imprime el contenido de la lista.
+};
+
+CLista::CLista()
+{
+    Inicio.siguiente = &Final;
+    Final.anterior = &Inicio;
+}
+
+CLista::~CLista()
+{
+    this->Vaciar();
+}
+
+void CLista::InsertarInicio(float fData)
+{
+    Inicio.InsertarAdelante(fData);
+}
+
+void CLista::InsertarFinal(float fData)
+{
+    Final.anterior->InsertarAdelante(fData);
+}
+
+float CLista::EliminarInicio()
+{
+    return Inicio.EliminarSiguiente();
+}
+
+float CLista::EliminarFinal()
+{
+    if (!this->IsEmpty())
+    {
+        return Final.anterior->anterior->EliminarSiguiente();
+    }
+}
+bool CLista::IsEmpty()
+{
+    return Inicio.siguiente == &Final;
+}
+int CLista::Size()
+{
+    int iNodes = 0;
+    CNodo *pIterNode = Inicio.siguiente;
+    while (pIterNode != &Final)
+    {
+        pIterNode = pIterNode->siguiente;
+        iNodes++;
+    }
+    return iNodes;
+}
+
+void CLista::Vaciar()
+{
+    while (Inicio.siguiente != &Final)
+    {
+        Inicio.EliminarSiguiente();
+    }
+}
+
+void CLista::Imprime()
+{
+    CNodo *pIterNode = Inicio.siguiente;
+    while (pIterNode != &Final)
+    {
+        cout << pIterNode->fContenido << "\t";
+        pIterNode = pIterNode->siguiente;
+    }
+}
+
+int main()
+{
+    // Testeo desde el main
+    cout << "Llenado de derecha a izquierda" << endl;
+    CLista floatList1;
+    floatList1.Imprime();
+    floatList1.InsertarInicio(0.2);
+    floatList1.InsertarInicio(0.4);
+    cout << "Elimindado del inicio: \t" << floatList1.EliminarInicio() << endl;
+    floatList1.InsertarInicio(0.6);
+    floatList1.InsertarInicio(0.8);
+    floatList1.Imprime();
+
+    cout << "\n\n";
+    cout << "Llenado de izquierda a derecha" << endl;
+    CLista floatList2;
+    floatList2.InsertarFinal(0.2);
+    cout << "Elimindado del final: \t" << floatList2.EliminarFinal() << endl;
+    floatList2.InsertarFinal(0.4);
+    floatList2.InsertarFinal(0.6);
+    floatList2.InsertarFinal(0.8);
+    floatList2.Imprime();
+    cout << "\n";
+    cout << "Size floatList2: " << floatList2.Size() << endl;
+    floatList2.Vaciar();
+    cout << "Lista vaciada (nada): " << endl;
+    floatList2.Imprime();
+    cout << "\n";
+    return 0;
+}
+

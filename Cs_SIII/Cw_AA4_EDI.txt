@@ -1,0 +1,378 @@
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string>
+#include <stdbool.h>
+using namespace std;
+
+///////////////////
+class Stack
+{
+private:
+    char stack[30];
+    int topValue = -1;
+    int size = 30;
+
+public:
+    Stack();
+    bool empty();
+    bool full();
+    void push(const char &);
+    char pop();
+    char top();
+};
+Stack::Stack()
+{
+}
+
+bool Stack::empty()
+{
+    return (topValue == -1);
+}
+
+bool Stack::full()
+{
+    return (topValue + 1 == size);
+}
+
+void Stack::push(const char &letter)
+{
+    if (full())
+    {
+        //throw QueueException("Desbordamiento de datos, enqueue");
+        printf("Desbordamiento de datos, enqueue");
+    }
+    else
+    {
+        stack[++topValue] = letter;
+    }
+}
+
+char Stack::pop()
+{
+    if (empty())
+    {
+        //throw QueueException("Insuficiencia de datos, pop");
+        printf("Insuficiencia de datos, pop");
+    }
+    else
+    {
+        char letter = stack[topValue];
+        topValue -= 1;
+        return (letter);
+    }
+}
+
+char Stack::top()
+{
+    if (empty())
+    {
+        //throw QueueException("Dato solicitado no existe, top");
+        printf("Dato solicitado no existe, top");
+    }
+    else
+    {
+        char letter = stack[topValue];
+        return (letter);
+    }
+}
+
+///////////////////
+class Queue
+{
+private:
+    char testList[30];
+    int size = 30;
+    int nEle = 29;
+    //
+    int endPos = 29;
+    int frontPos = 0;
+    int fullSpaces = -1;
+
+public:
+    Queue();
+    bool empty();
+    bool full();
+    void enqueue(const char &);
+    char dequeue();
+    char front();
+
+    void printAll();
+    int getFullSpaces();
+};
+
+Queue::Queue(){};
+
+bool Queue::empty()
+{
+    return frontPos == endPos + 1 || (frontPos == 0 && endPos == size - 1);
+}
+
+bool Queue::full()
+{
+    return frontPos == endPos + 1 || (frontPos == 0 && endPos == size - 2) || (frontPos == 1 && endPos == size - 1);
+}
+
+void Queue::enqueue(const char &letter)
+{
+    if (full())
+    {
+        //throw QueueException("Desbordamiento de datos, enqueue");
+        std::cout << "Desbordamiento de datos, enqueue";
+    }
+    else
+    {
+        if (++endPos == size)
+        {
+            endPos = 0;
+        }
+        fullSpaces++;
+        testList[endPos] = letter;
+    }
+};
+
+char Queue::dequeue()
+{
+    if (empty())
+    {
+        std::cout << "Insuficiencia de datos, dequeue";
+    }
+    else
+    {
+        char result = testList[frontPos];
+        if (++frontPos == size)
+        {
+            frontPos = 0;
+        }
+        fullSpaces--;
+        return result;
+    }
+}
+
+char Queue::front()
+{
+    if (empty())
+    {
+        cout << "Insuficiencia de datos, front";
+    }
+    else
+    {
+        return testList[frontPos];
+    }
+}
+
+void Queue::printAll()
+{
+    for (int i = endPos; frontPos == endPos + 1 || (frontPos == 0 && endPos == size - 2) || (frontPos == 1 && endPos == size - 1); i++)
+    {
+        if (i == size)
+        {
+            i = 0;
+        }
+        std::cout << testList[i];
+    }
+}
+
+int Queue::getFullSpaces()
+{
+    return fullSpaces;
+}
+
+/////////
+
+class Operator
+{
+private:
+    char operatorList[6] = {'^', '@', '*', '/', '+', '-'};
+    char digitsList[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
+public:
+    Operator();
+    char isOperator(const char &);
+    int precedenceOp(const char &);
+};
+
+Operator::Operator() {}
+
+char Operator::isOperator(const char &char1)
+{
+    // Output types
+    // "0"  -->  operator
+    // "1"  -->  operand
+    // "("
+    // ")"
+    for (int i = 0; i < 6; i++)
+    {
+        if (char1 == operatorList[i])
+        {
+            return ('0');
+        }
+    }
+    for (int i = 0; i < 10; i++)
+    {
+        if (char1 == digitsList[i])
+        {
+            return ('1');
+        }
+    }
+    return char1;
+}
+
+/////////////
+int Operator::precedenceOp(const char &char2)
+{
+
+    if (operatorList[0] == char2 || operatorList[1] == char2)
+    {
+        return 1;
+    }
+    else if (operatorList[2] == char2 || operatorList[3] == char2)
+    {
+        return 2;
+    }
+    else if (operatorList[4] == char2 || operatorList[5] == char2)
+    {
+        return 3;
+    }
+}
+
+///////////////////
+class Expresion
+{
+private:
+    Queue inputExpresion;
+    Queue outputExpresion;
+    Stack stack1;
+    Operator operator1;
+    int size;
+
+public:
+    Expresion();
+    void receiveInfix(const /**/ Queue &, const int &);
+    Queue convertPostfix();
+};
+Expresion::Expresion() {}
+
+void Expresion::receiveInfix(const Queue &_inputExpresion, const int &_size)
+{
+    inputExpresion = _inputExpresion;
+    size = _size;
+};
+
+Queue Expresion::convertPostfix()
+{
+    for (int i = 0; i < size; i++)
+    {
+        char char1 = inputExpresion.dequeue();
+        char typeChar = operator1.isOperator(char1);
+
+        if (typeChar == '0')
+        {
+            while (!stack1.empty() && stack1.top() != '(' && operator1.precedenceOp(stack1.top()) == operator1.precedenceOp(char1))
+            {
+                outputExpresion.enqueue(stack1.pop());
+            }
+            stack1.push(char1);
+        }
+        else if (typeChar == '1')
+        {
+            outputExpresion.enqueue(char1);
+        }
+        else if (typeChar == '(')
+        {
+            stack1.push(char1);
+        }
+        else if (typeChar == ')')
+        {
+            while (!stack1.empty() && stack1.top() != '(')
+            {
+                outputExpresion.enqueue(stack1.pop());
+            }
+        }
+    }
+    while (!stack1.empty() && stack1.top() != '(')
+    {
+        outputExpresion.enqueue(stack1.pop());
+    }
+    return outputExpresion;
+}
+
+///////////////////
+class UserInterface
+{
+private:
+    int choice = 0, size;
+    string sExpresion;
+
+public:
+    UserInterface();
+    void showMenu();
+    void putExpresion();
+    void processExpresion();
+    Queue stringToQueue();
+    void printExpresion(Queue &, const int &f);
+};
+
+UserInterface::UserInterface() {}
+
+void UserInterface::showMenu()
+{
+    std::cout << "\n[1] para convertir una expresion \n[0] Para salir\n";
+    std::cin >> choice;
+    if (choice == 0)
+    {
+        std::cout << "\nBuen dia! \n";
+    }
+    else if (choice == 1)
+    {
+        putExpresion();
+    }
+};
+
+void UserInterface::putExpresion()
+{
+    std::cout << "\nIngresar expresion infija: \t";
+    std::cin >> sExpresion;
+    size = sExpresion.length();
+    processExpresion();
+}
+
+Queue UserInterface::stringToQueue()
+{
+    Queue list1;
+    for (int i = 0; i < size; i++)
+    {
+        list1.enqueue(sExpresion[i]);
+    }
+    return (list1);
+}
+
+void UserInterface::printExpresion(Queue &outQueue, const int &fullSpaces)
+{
+    printf("Devuelve expresion postfija: \t");
+    for (int i = 0; i < fullSpaces + 1; i++)
+    {
+        std::cout << outQueue.dequeue();
+    }
+    printf("\n");
+}
+
+void UserInterface::processExpresion()
+{
+    Queue queue1 = stringToQueue();
+    Expresion expresion1;
+    expresion1.receiveInfix(queue1, size);
+    Queue queue2 = expresion1.convertPostfix();
+    // ... //
+    printExpresion(queue2, queue2.getFullSpaces());
+    //
+    UserInterface interface2;
+    interface2.showMenu();
+}
+
+int main()
+{
+    UserInterface interface1;
+    interface1.showMenu();
+    return 0;
+}

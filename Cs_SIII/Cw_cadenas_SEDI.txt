@@ -1,0 +1,61 @@
+
+#include <stdio.h>
+#include <iostream>
+#include <stdlib.h>
+#include <string>
+#include <stdbool.h>
+using namespace std;
+
+// Ex 1. Opción 2
+int Tamanio(char *pszCadena)
+{
+    int size = 0;
+    for (int i = 0; pszCadena[i] != 0; i++)
+    {
+        size++;
+    }
+    return size;
+}
+
+// Ex 2. Opción 2
+int Cuenta(char *pszCadena, char cContar)
+{
+    int quant = 0;
+    for (int i = 0; pszCadena[i] != 0; i++)
+    {
+        if (pszCadena[i] == cContar)
+        {
+            quant++;
+        }
+    }
+    return quant;
+}
+
+// Ex 3. Opción 2
+void Reves(char *pszCadena)
+{
+    int lastEle = Tamanio(pszCadena) - 1;
+    char temp;
+    char charTempLst[50];
+    for (int iter = 0; iter < lastEle; iter++)
+    {
+        temp = pszCadena[iter];
+        pszCadena[iter] = pszCadena[lastEle];
+        pszCadena[lastEle] = temp;
+        lastEle--;
+    }
+}
+
+int main()
+{
+    char cadena1[50] = "Hola Mundo";
+
+    int size = Tamanio(cadena1);
+    int quant = Cuenta(cadena1, 'o');
+    Reves(cadena1);
+
+    std::cout << size << '\n';
+    std::cout << quant << '\n';
+    std::cout << cadena1 << "\n";
+    return 0;
+}
